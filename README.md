@@ -11,7 +11,7 @@ Nessa avaliação iremos trabalhar com o módulo OLED1 (botões/ LEDs e Display)
 >  Faça o seu trabalho de maneira ética!
 
 - **A cada 30 minutos você deverá fazer um commit no seu código!**
-    - Códigos que não tiverem commit a cada 15min ou que mudarem drasticamente entre os commits serão descartados (conceito I) !!
+    - Códigos que não tiverem commit a cada 30 min ou que mudarem drasticamente entre os commits serão descartados (conceito I) !!
     - Você deve inserir mensagens condizentes nos commits!
 - Duração: 2h
 
