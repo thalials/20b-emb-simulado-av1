@@ -1,4 +1,4 @@
-# Simulado Avaliação prática 1
+# ~~Simulado Avaliação prática 1~~ Estudo pré simulado (2021)
 
 Esse é um simulado de como será a avaliação prática aplicada na disciplina de Computação Embarcada. 
 
