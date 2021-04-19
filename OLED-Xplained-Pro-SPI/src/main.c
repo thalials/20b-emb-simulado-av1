@@ -42,6 +42,8 @@ volatile char flag_tc_left = 0;
 volatile char flag_tc_center = 0;
 volatile char flag_tc_right = 0;
 volatile Bool flag_rtt = false;
+volatile Bool authorize = false;
+
 
 
 void toggle_led(Pio *p_pio, const uint32_t ul_mask);
@@ -140,15 +142,14 @@ void RTT_Handler(void) {
 	
 	if ((ul_status && RTT_SR_ALMS) == RTT_SR_ALMS){
 		// é como se os 3 botões fossem pressionados ao mesmo tempo
-		flag_left = !flag_left;
-		flag_center = !flag_center;
-		flag_right = !flag_right;
+		authorize = true;
 		flag_rtt = true;
 	}
 }
 
 static float get_time_rtt() {
 	uint ul_previous_time = rtt_read_timer_value(RTT);
+	return ul_previous_time;
 }
 
 void RTT_init(uint16_t pllPreScale, uint32_t IrqNPulses) {
@@ -257,26 +258,32 @@ int main (void) {
 	// Init OLED
 	gfx_mono_ssd1306_init();
 	
-	gfx_mono_draw_string("5Hz 10Hz 1Hz", 0, 16, &sysfont);
+	gfx_mono_draw_string("5Hz 10Hz 1Hz", 0, 0, &sysfont);
 
 	/* Insert application code here, after the board has been initialized. */
 	while(1) {
 		
 		if (flag_tc_left) {
 			if (flag_left) {
-				toggle_led(LED_LEFT, LED_LEFT_MASK);
+				if (authorize) {
+					toggle_led(LED_LEFT, LED_LEFT_MASK);	
+				}
 			}
 			flag_tc_left = 0;
 		}
 		if (flag_tc_center) {
 			if (flag_center) {
-				toggle_led(LED_CENTER, LED_CENTER_MASK);
+				if (authorize) {
+					toggle_led(LED_CENTER, LED_CENTER_MASK);
+				}
 			}
 			flag_tc_center = 0;
 		}
 		if (flag_tc_right) {
 			if (flag_right) {
-				toggle_led(LED_RIGHT, LED_RIGHT_MASK);
+				if (authorize) {
+					toggle_led(LED_RIGHT, LED_RIGHT_MASK);
+				}
 			}
 			flag_tc_right = 0;
 		}
@@ -285,6 +292,7 @@ int main (void) {
 			uint32_t irqRTTvalue = 200;
 			RTT_init(pllPreScale, irqRTTvalue);
 			flag_rtt = false;
+			authorize = false;
 		}
 		pmc_sleep(SAM_PM_SMODE_SLEEP_WFI);
 	}
