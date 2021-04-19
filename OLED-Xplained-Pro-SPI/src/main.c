@@ -41,7 +41,7 @@ volatile char flag_right = 0;
 volatile char flag_tc_left = 0;
 volatile char flag_tc_center = 0;
 volatile char flag_tc_right = 0;
-volatile char flag_rtt = 0;
+volatile Bool flag_rtt = false;
 
 
 void toggle_led(Pio *p_pio, const uint32_t ul_mask);
@@ -143,7 +143,7 @@ void RTT_Handler(void) {
 		flag_left = !flag_left;
 		flag_center = !flag_center;
 		flag_right = !flag_right;
-		flag_rtt = 1;
+		flag_rtt = true;
 	}
 }
 
@@ -158,7 +158,7 @@ void RTT_init(uint16_t pllPreScale, uint32_t IrqNPulses) {
 	rtt_init(RTT, pllPreScale);
 	
 	ul_previous_time = rtt_read_timer_value(RTT);
-	//	while(ul_previous_time == rtt_read_timer_value(RTT));
+	while(ul_previous_time == rtt_read_timer_value(RTT));
 	
 	rtt_write_alarm_time(RTT, IrqNPulses + ul_previous_time);
 	
@@ -261,12 +261,7 @@ int main (void) {
 
 	/* Insert application code here, after the board has been initialized. */
 	while(1) {
-		if (flag_rtt) {
-			uint16_t pllPreScale = (int) ((((float) 32768)/1.0));
-			uint32_t irqRTTvalue = 1;
-			RTT_init(pllPreScale, irqRTTvalue);
-			flag_rtt = 0;
-		}
+		
 		if (flag_tc_left) {
 			if (flag_left) {
 				toggle_led(LED_LEFT, LED_LEFT_MASK);
@@ -284,6 +279,12 @@ int main (void) {
 				toggle_led(LED_RIGHT, LED_RIGHT_MASK);
 			}
 			flag_tc_right = 0;
+		}
+		if (flag_rtt) {
+			uint16_t pllPreScale = (int) (((float) 32768)/40);
+			uint32_t irqRTTvalue = 200;
+			RTT_init(pllPreScale, irqRTTvalue);
+			flag_rtt = false;
 		}
 		pmc_sleep(SAM_PM_SMODE_SLEEP_WFI);
 	}
