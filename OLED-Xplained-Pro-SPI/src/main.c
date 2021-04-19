@@ -135,27 +135,14 @@ void RTT_Handler(void) {
 	uint32_t ul_status = rtt_get_status(RTT);
 	
 	if ((ul_status & RTT_SR_RTTINC) == RTT_SR_RTTINC ) {
-		if (flag_tc_left) {
-			if (flag_left) {
-				toggle_led(LED_LEFT, LED_LEFT_MASK);
-			}
-			flag_tc_left = 0;
-		}
-		if (flag_tc_center) {
-			if (flag_center) {
-				toggle_led(LED_CENTER, LED_CENTER_MASK);
-			}
-			flag_tc_center = 0;
-		}
-		if (flag_tc_right) {
-			if (flag_right) {
-				toggle_led(LED_RIGHT, LED_RIGHT_MASK);
-			}
-			flag_tc_right = 0;
-		}
+		
 	}
 	
 	if ((ul_status && RTT_SR_ALMS) == RTT_SR_ALMS){
+		// é como se os 3 botões fossem pressionados ao mesmo tempo
+		flag_left = !flag_left;
+		flag_center = !flag_center;
+		flag_right = !flag_right;
 		flag_rtt = 1;
 	}
 }
@@ -269,20 +256,35 @@ int main (void) {
 
 	// Init OLED
 	gfx_mono_ssd1306_init();
-  
-	// Escreve na tela um circulo e um texto
-	gfx_mono_draw_filled_circle(20, 16, 16, GFX_PIXEL_SET, GFX_WHOLE);
-	gfx_mono_draw_string("mundo", 50,16, &sysfont);
+	
+	gfx_mono_draw_string("5Hz 10Hz 1Hz", 0, 16, &sysfont);
 
 	/* Insert application code here, after the board has been initialized. */
 	while(1) {
 		if (flag_rtt) {
-			uint16_t pllPreScale = (int) (((float) 32768))*10;
+			uint16_t pllPreScale = (int) ((((float) 32768)/1.0));
 			uint32_t irqRTTvalue = 1;
 			RTT_init(pllPreScale, irqRTTvalue);
 			flag_rtt = 0;
 		}
-		
+		if (flag_tc_left) {
+			if (flag_left) {
+				toggle_led(LED_LEFT, LED_LEFT_MASK);
+			}
+			flag_tc_left = 0;
+		}
+		if (flag_tc_center) {
+			if (flag_center) {
+				toggle_led(LED_CENTER, LED_CENTER_MASK);
+			}
+			flag_tc_center = 0;
+		}
+		if (flag_tc_right) {
+			if (flag_right) {
+				toggle_led(LED_RIGHT, LED_RIGHT_MASK);
+			}
+			flag_tc_right = 0;
+		}
 		pmc_sleep(SAM_PM_SMODE_SLEEP_WFI);
 	}
 	
